@@ -1,12 +1,33 @@
-describe('First Cypress Test', () => {
+import LoginPage from '../pages/LoginPage';
 
-  it('opens login page', () => {
+describe('Login Tests using POM', () => {
 
-    cy.visit('https://the-internet.herokuapp.com/login')
+  let user;
 
-    cy.get('#username').should('be.visible')
-    cy.get('#password').should('be.visible')
+  before(() => {
+    cy.fixture('users').then((data) => {
+      user = data;
+    });
+  });
 
-  })
+  it('Login with valid user', () => {
+    LoginPage.visit();
 
-})
+    LoginPage.login(
+      user.validUser.username,
+      user.validUser.password
+    );
+
+    cy.url().should('include', '/inventory.html');
+  });
+
+  it('Invalid login shows error', () => {
+    LoginPage.visit();
+
+    LoginPage.login('wrongUser', 'wrongPass');
+
+    LoginPage.errorMessage()
+      .should('contain', 'Username and password do not match');
+  });
+
+});
